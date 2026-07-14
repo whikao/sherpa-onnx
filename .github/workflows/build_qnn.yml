@@ -1,0 +1,62 @@
+name: 编译 Sherpa-Onnx QNN 版本
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 拉取源码
+      - name: Checkout sherpa-onnx
+        uses: actions/checkout@v4
+        with:
+          repository: k2-fsa/sherpa-onnx
+          submodules: 'recursive'
+
+      # 2. 设置 Android NDK
+      - name: Setup Android NDK
+        run: |
+          wget https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
+          unzip android-ndk-r25c-linux.zip
+          echo "ANDROID_NDK=${{ github.workspace }}/android-ndk-r25c" >> $GITHUB_ENV
+
+      # 3. 下载 QNN SDK
+      - name: Download QNN SDK
+        run: |
+          pip install gdown
+          gdown --fuzzy "https://drive.google.com/file/d/1i41yjT_CA05ahh3d0S5DVVrHU4lkl8zy/view?usp=sharing" -O qnn-sdk.zip
+          unzip qnn-sdk.zip -d qnn-sdk
+          echo "QNN_SDK_PATH=${{ github.workspace }}/qnn-sdk" >> $GITHUB_ENV
+
+      # 4. 显式配置和编译（直接指定 QNN 路径，不用担心脚本漏传）
+      - name: Build with CMake
+        run: |
+          mkdir build && cd build
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=${{ env.ANDROID_NDK }}/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-24 \
+            -DBUILD_SHARED_LIBS=ON \
+            -DSHERPA_ONNX_ENABLE_QNN=ON \
+            -DQNN_SDK_PATH=${{ env.QNN_SDK_PATH }} \
+            -DSHERPA_ONNX_ENABLE_BINARY=ON \
+            -DCMAKE_BUILD_TYPE=Release
+          make -j4
+
+      # 5. 提取所有打包产物（包含主程序和所有 .so 库）
+      - name: Prepare Artifacts
+        run: |
+          mkdir -p output
+          cp build/bin/sherpa-onnx output/
+          cp ${{ env.QNN_SDK_PATH }}/lib/aarch64-android/*.so output/
+          find build -type f \( -name "*.so" -o -name "*.so.*" \) -exec cp {} output/ \;
+
+      # 6. 上传，供你在手机下载
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sherpa-onnx-qnn-android-full
+          path: output/
