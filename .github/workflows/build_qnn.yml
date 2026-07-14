@@ -1,4 +1,4 @@
-name: 编译 Sherpa-Onnx QNN 版本 (智能路径版)
+name: 编译 Sherpa-Onnx QNN 版本 (修复二进制)
 
 on:
   push:
@@ -31,12 +31,12 @@ jobs:
           unzip qnn-sdk.zip -d qnn-sdk
           echo "QNN_SDK_PATH=${{ github.workspace }}/qnn-sdk" >> $GITHUB_ENV
 
-      # 4. 【核心修复】智能寻找环境，然后运行官方脚本
+      # 4. 运行官方脚本
       - name: Execute official build script
         run: |
           chmod +x ./build-android-arm64-v8a.sh
           
-          # 智能检测 envsetup.sh 的位置（无论套了几层目录都能找到）
+          # 智能检测 envsetup.sh
           if [ -f "$QNN_SDK_PATH/bin/envsetup.sh" ]; then
             source "$QNN_SDK_PATH/bin/envsetup.sh"
           else
@@ -45,23 +45,22 @@ jobs:
             if [ -n "$QNN_ENV_FILE" ]; then
               source "$QNN_ENV_FILE"
               echo "✅ 成功加载 QNN 环境文件: $QNN_ENV_FILE"
-            else
-              echo "⚠️ 没找到 envsetup.sh 文件，请检查你的压缩包结构。后续编译可能会报错。"
             fi
           fi
           
-          # 开启 QNN 和 共享库
+          # 【核心修复】把生成主程序的开关打开！
           export SHERPA_ONNX_ENABLE_QNN=ON
           export BUILD_SHARED_LIBS=ON
+          export SHERPA_ONNX_ENABLE_BINARY=ON 
           
           # 运行官方脚本
           ./build-android-arm64-v8a.sh
 
-      # 5. 提取打包产物 (主程序和所有需要的库都不会删)
+      # 5. 打包提取产物
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sherpa-onnx-qnn-android-official
+          name: sherpa-onnx-qnn-android-full
           path: |
             build-android-arm64-v8a/install/bin/
             build-android-arm64-v8a/install/lib/
