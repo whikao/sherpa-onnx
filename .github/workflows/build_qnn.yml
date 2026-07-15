@@ -53,8 +53,8 @@ jobs:
           export BUILD_SHARED_LIBS=ON
           export SHERPA_ONNX_ENABLE_BINARY=ON 
           
-          # ✅ 【修改处】把安卓平台 API 级别改为 36 (对应 Android 16)，完美支持 NNAPI
-          export SHERPA_ONNX_ANDROID_PLATFORM=android-36
+          # ✅ 【修正】将版本设为 latest，让 NDK 自动使用其支持的最高版本（肯定大于27）
+          export SHERPA_ONNX_ANDROID_PLATFORM=latest
           
           # 运行官方脚本
           ./build-android-arm64-v8a.sh
