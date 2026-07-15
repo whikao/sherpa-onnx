@@ -27,7 +27,7 @@ jobs:
       - name: Download QNN SDK
         run: |
           pip install gdown
-          gdown 1i41yjT_CA05ahh3d0S5DVVrHU4lkl8zy -O qnn-sdk.zip
+          gdown 1mWBqYnpVw5coBF7x5ZTFxf93z0ERwE8H -O qnn-sdk.zip
           unzip qnn-sdk.zip -d qnn-sdk
           echo "QNN_SDK_PATH=${{ github.workspace }}/qnn-sdk" >> $GITHUB_ENV
 
