@@ -21,7 +21,7 @@ jobs:
         run: |
           wget https://dl.google.com/android/repository/android-ndk-r28-linux.zip
           unzip android-ndk-r28-linux.zip
-          echo "ANDROID_NDK=${{ github.workspace }}/android-ndk-r25c" >> $GITHUB_ENV
+          echo "ANDROID_NDK=${{ github.workspace }}/android-ndk-r28" >> $GITHUB_ENV
 
       # 3. 下载 QNN SDK
       - name: Download QNN SDK
@@ -48,13 +48,13 @@ jobs:
             fi
           fi
           
-          # 【核心修复】把生成主程序的开关打开！
+          # 开启 QNN 和 生成主程序
           export SHERPA_ONNX_ENABLE_QNN=ON
           export BUILD_SHARED_LIBS=ON
           export SHERPA_ONNX_ENABLE_BINARY=ON 
           
-          # ✅ 【修正】将版本设为 latest，让 NDK 自动使用其支持的最高版本（肯定大于27）
-          export SHERPA_ONNX_ANDROID_PLATFORM=android-36
+          # ✅ 使用 latest，NDK r28 会自动选择它支持的最高平台版本（>27 完美支持 NNAPI）
+          export SHERPA_ONNX_ANDROID_PLATFORM=latest
           
           # 运行官方脚本
           ./build-android-arm64-v8a.sh
