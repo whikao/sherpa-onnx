@@ -27,7 +27,7 @@ jobs:
       - name: Download QNN SDK
         run: |
           pip install gdown
-          gdown 1mWBqYnpVw5coBF7x5ZTFxf93z0ERwE8H -O qnn-sdk.zip
+          gdown 1lLjuHmnTvN5m1yzGNYfQxzZWaOEpNpOy -O qnn-sdk.zip
           unzip qnn-sdk.zip -d qnn-sdk
           echo "QNN_SDK_PATH=${{ github.workspace }}/qnn-sdk" >> $GITHUB_ENV
 
@@ -52,6 +52,9 @@ jobs:
           export SHERPA_ONNX_ENABLE_QNN=ON
           export BUILD_SHARED_LIBS=ON
           export SHERPA_ONNX_ENABLE_BINARY=ON 
+          
+          # ✅ 【修改处】把安卓平台 API 级别改为 36 (对应 Android 16)，完美支持 NNAPI
+          export SHERPA_ONNX_ANDROID_PLATFORM=android-36
           
           # 运行官方脚本
           ./build-android-arm64-v8a.sh
