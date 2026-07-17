@@ -54,7 +54,7 @@ jobs:
           export SHERPA_ONNX_ENABLE_BINARY=ON 
           
           # ✅ 使用 latest，NDK r28 会自动选择它支持的最高平台版本（>27 完美支持 NNAPI）
-          export SHERPA_ONNX_ANDROID_PLATFORM=latest
+          export SHERPA_ONNX_ANDROID_PLATFORM=android-34
           
           # 运行官方脚本
           ./build-android-arm64-v8a.sh
