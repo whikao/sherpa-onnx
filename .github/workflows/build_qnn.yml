@@ -16,22 +16,12 @@ jobs:
           repository: k2-fsa/sherpa-onnx
           submodules: 'recursive'
 
-      # 2. 下载 NDK (使用 Android 官方 sdkmanager 指定精确版本 28.2.13676358)
+      # 2. 下载 NDK (直接 wget 下载指定版本 28.2.13676358)
       - name: Setup Android NDK
         run: |
-          # 1. 安装 Android 命令行工具 (sdkmanager)
-          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip commandlinetools-linux-11076708_latest.zip
-          mkdir -p $ANDROID_HOME/cmdline-tools/latest
-          mv cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
-          rm commandlinetools-linux-11076708_latest.zip
-          rm -rf cmdline-tools
-          
-          # 2. 使用 sdkmanager 精准安装 NDK 28.2.13676358
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;28.2.13676358"
-          
-          # 3. 设置环境变量指向 NDK 目录
-          echo "ANDROID_NDK=$ANDROID_HOME/ndk/28.2.13676358" >> $GITHUB_ENV
+          wget https://dl.google.com/android/repository/android-ndk-28.2.13676358-linux.zip
+          unzip android-ndk-28.2.13676358-linux.zip
+          echo "ANDROID_NDK=${{ github.workspace }}/android-ndk-28.2.13676358" >> $GITHUB_ENV
 
       # 3. 下载 QNN SDK
       - name: Download QNN SDK
@@ -63,7 +53,7 @@ jobs:
           export BUILD_SHARED_LIBS=ON
           export SHERPA_ONNX_ENABLE_BINARY=ON 
           
-          # ✅ 使用 latest，NDK r28 会自动选择它支持的最高平台版本（>27 完美支持 NNAPI）
+          # ✅ 使用 latest，NDK 28 会自动选择它支持的最高平台版本（>27 完美支持 NNAPI）
           export SHERPA_ONNX_ANDROID_PLATFORM=latest
           
           # 运行官方脚本
